@@ -1,5 +1,7 @@
 # Epicycle
 
+[![CI](https://github.com/ctkrug/epicycle/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/epicycle/actions/workflows/ci.yml)
+
 Draw any shape with your mouse and watch a chain of spinning circles — a Fourier
 series — magically retrace it, then export the animation.
 
