@@ -20,6 +20,15 @@
   <body>
     <header class="site-header">
       <span class="wordmark">Epicycle</span>
+      <button
+        id="mute-toggle"
+        class="icon-button"
+        type="button"
+        aria-label="Mute sound"
+        aria-pressed="false"
+      >
+        <span aria-hidden="true">&#128266;</span>
+      </button>
     </header>
 
     <main class="stage">
@@ -29,9 +38,46 @@
         <p id="stroke-message" class="stroke-message" role="status" aria-live="polite" hidden></p>
       </section>
       <aside class="control-rail" aria-label="Controls">
-        <p class="control-rail__note">More controls coming soon — circle count, speed, and export.</p>
+        <div class="control-group">
+          <label class="control-label" for="circle-count">
+            Circles <output id="circle-count-value" for="circle-count">0</output>
+          </label>
+          <input type="range" id="circle-count" min="1" max="1" value="1" disabled />
+        </div>
+
+        <div class="control-group">
+          <label class="switch">
+            <input type="checkbox" id="toggle-circles" checked />
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__label">Show circle chain</span>
+          </label>
+        </div>
+
+        <div class="control-group control-group--row">
+          <button id="play-pause" class="button" type="button" disabled>
+            <span aria-hidden="true">&#10074;&#10074;</span> Pause
+          </button>
+          <button id="restart" class="button button--ghost" type="button" disabled>
+            <span aria-hidden="true">&#8635;</span> Restart
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="speed">
+            Speed <output id="speed-value" for="speed">1.0&times;</output>
+          </label>
+          <input type="range" id="speed" min="0.25" max="3" step="0.25" value="1" />
+        </div>
+
+        <div class="control-group">
+          <button id="export-png" class="button button--ghost" type="button" disabled>
+            Save PNG
+          </button>
+        </div>
       </aside>
     </main>
+
+    <div id="live-region" class="sr-only" role="status" aria-live="polite"></div>
 
     <script type="module" src="./main.js"></script>
   </body>
