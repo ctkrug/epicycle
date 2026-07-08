@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resamplePath } from '../src/resample.js';
+import { resamplePath } from '../site/resample.js';
 
 test('returns the requested number of points', () => {
   const line = [{ x: 0, y: 0 }, { x: 10, y: 0 }];

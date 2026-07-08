@@ -1,6 +1,6 @@
-import { resamplePath } from '../src/resample.js';
-import { dft } from '../src/fourier.js';
-import { tracePath } from '../src/epicycles.js';
+import { resamplePath } from './resample.js';
+import { dft } from './fourier.js';
+import { tracePath } from './epicycles.js';
 
 const SAMPLE_POINTS = 120;
 

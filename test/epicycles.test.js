@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dft } from '../src/fourier.js';
-import { reconstructAt, tracePath } from '../src/epicycles.js';
+import { dft } from '../site/fourier.js';
+import { reconstructAt, tracePath } from '../site/epicycles.js';
 
 function closeTo(a, b, epsilon = 1e-9) {
   return Math.abs(a - b) < epsilon;

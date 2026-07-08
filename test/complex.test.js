@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { complex, add, multiply, magnitude, phase, fromPolar } from '../src/complex.js';
+import { complex, add, multiply, magnitude, phase, fromPolar } from '../site/complex.js';
 
 test('add sums real and imaginary parts', () => {
   const result = add(complex(1, 2), complex(3, -4));

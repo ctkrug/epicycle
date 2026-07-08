@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dft } from '../src/fourier.js';
+import { dft } from '../site/fourier.js';
 
 test('returns one coefficient per input point', () => {
   const points = [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
