@@ -5,6 +5,14 @@
   "type": "module",
   "private": true,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctkrug/epicycle.git"
+  },
+  "homepage": "https://github.com/ctkrug/epicycle#readme",
+  "bugs": {
+    "url": "https://github.com/ctkrug/epicycle/issues"
+  },
   "scripts": {
     "test": "node --test test/",
     "lint": "eslint .",
