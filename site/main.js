@@ -1,30 +1,21 @@
 import { resamplePath } from './resample.js';
 import { dft } from './fourier.js';
-import { tracePath } from './epicycles.js';
+import { chainPositions } from './epicycles.js';
+import { createStrokeRecorder } from './stroke.js';
+import { isDrawablePath } from './validation.js';
+import { centeredCanvasPoint } from './coordinates.js';
+import { advanceAnimation, DEFAULT_LOOP_SECONDS } from './animation.js';
+import { saveLastShape, loadLastShape } from './shapePersistence.js';
 
 const SAMPLE_POINTS = 120;
-
-function samplePlaceholderShape() {
-  // A five-pointed star used only to prove the DFT pipeline end-to-end
-  // until freehand drawing (docs/BACKLOG.md epic 1) replaces it.
-  const points = [];
-  const spikes = 5;
-  const outerRadius = 140;
-  const innerRadius = 60;
-  for (let i = 0; i < spikes * 2; i += 1) {
-    const radius = i % 2 === 0 ? outerRadius : innerRadius;
-    const angle = (Math.PI * i) / spikes - Math.PI / 2;
-    points.push({ x: radius * Math.cos(angle), y: radius * Math.sin(angle) });
-  }
-  points.push(points[0]);
-  return points;
-}
 
 function main() {
   const canvas = document.getElementById('epicycle-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
+  const hint = document.getElementById('hint');
+  const strokeMessage = document.getElementById('stroke-message');
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
@@ -35,38 +26,154 @@ function main() {
   window.addEventListener('resize', resize);
   resize();
 
-  const shape = resamplePath(samplePlaceholderShape(), SAMPLE_POINTS);
-  const coefficients = dft(shape);
-  const traced = tracePath(coefficients, SAMPLE_POINTS);
+  const strokeRecorder = createStrokeRecorder();
+  const animationState = { t: 0, playing: true, speed: 1, loopSeconds: DEFAULT_LOOP_SECONDS };
+  let coefficients = [];
+  let trail = [];
+  let lastFrameTime = null;
 
-  let frame = 0;
-  function render() {
+  function showMessage(text) {
+    strokeMessage.textContent = text;
+    strokeMessage.hidden = false;
+  }
+
+  function clearMessage() {
+    strokeMessage.hidden = true;
+  }
+
+  function hideHint() {
+    hint.hidden = true;
+  }
+
+  function loadShape(points) {
+    const resampled = resamplePath(points, SAMPLE_POINTS);
+    coefficients = dft(resampled);
+    animationState.t = 0;
+    trail = [];
+  }
+
+  function handleStrokeEnd() {
+    const points = strokeRecorder.end();
+    if (!isDrawablePath(points)) {
+      showMessage('Draw a bit more — that stroke was too short to trace.');
+      return;
+    }
+    clearMessage();
+    hideHint();
+    loadShape(points);
+    saveLastShape(points);
+  }
+
+  function pointFromEvent(event) {
     const rect = canvas.getBoundingClientRect();
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
+    return centeredCanvasPoint(event.clientX, event.clientY, rect);
+  }
 
-    ctx.clearRect(0, 0, rect.width, rect.height);
+  canvas.addEventListener('pointerdown', (event) => {
+    canvas.setPointerCapture(event.pointerId);
+    clearMessage();
+    strokeRecorder.begin(pointFromEvent(event));
+  });
+
+  canvas.addEventListener('pointermove', (event) => {
+    if (!strokeRecorder.isActive) return;
+    strokeRecorder.add(pointFromEvent(event));
+  });
+
+  canvas.addEventListener('pointerup', () => {
+    if (!strokeRecorder.isActive) return;
+    handleStrokeEnd();
+  });
+
+  canvas.addEventListener('pointercancel', () => {
+    if (!strokeRecorder.isActive) return;
+    handleStrokeEnd();
+  });
+
+  function drawChain(cx, cy, positions) {
     ctx.save();
     ctx.translate(cx, cy);
+    ctx.strokeStyle = 'rgba(245, 236, 255, 0.25)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < positions.length - 1; i += 1) {
+      const center = positions[i];
+      const next = positions[i + 1];
+      const radius = Math.hypot(next.x - center.x, next.y - center.y);
+      if (radius > 0.5) {
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.moveTo(center.x, center.y);
+      ctx.lineTo(next.x, next.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 
-    ctx.strokeStyle = 'rgba(56, 232, 255, 0.8)';
-    ctx.lineWidth = 2;
+  function drawTrail(cx, cy, points) {
+    if (points.length < 2) return;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.strokeStyle = '#38e8ff';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
     ctx.beginPath();
-    traced.slice(0, frame + 1).forEach((point, index) => {
+    points.forEach((point, index) => {
       if (index === 0) ctx.moveTo(point.x, point.y);
       else ctx.lineTo(point.x, point.y);
     });
     ctx.stroke();
-
-    const head = traced[frame];
-    ctx.fillStyle = '#ff3ea5';
-    ctx.beginPath();
-    ctx.arc(head.x, head.y, 4, 0, Math.PI * 2);
-    ctx.fill();
-
     ctx.restore();
-    frame = (frame + 1) % traced.length;
+  }
+
+  function drawTip(cx, cy, point) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.fillStyle = '#ff3ea5';
+    ctx.shadowColor = 'rgba(255, 62, 165, 0.6)';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function render(now) {
+    if (lastFrameTime === null) lastFrameTime = now;
+    const dt = (now - lastFrameTime) / 1000;
+    lastFrameTime = now;
+
+    if (coefficients.length > 0) {
+      const result = advanceAnimation(animationState, dt);
+      animationState.t = result.t;
+      if (result.looped) trail = [];
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    if (coefficients.length > 0) {
+      const positions = chainPositions(coefficients, animationState.t);
+      const tip = positions[positions.length - 1];
+      trail.push(tip);
+      drawChain(cx, cy, positions);
+      drawTrail(cx, cy, trail);
+      drawTip(cx, cy, tip);
+    }
+
     requestAnimationFrame(render);
+  }
+
+  const restored = loadLastShape();
+  if (restored && isDrawablePath(restored)) {
+    hideHint();
+    loadShape(restored);
+  } else {
+    hint.hidden = false;
   }
 
   requestAnimationFrame(render);
