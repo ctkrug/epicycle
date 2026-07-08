@@ -1,0 +1,11 @@
+{
+  "name": "epicycle",
+  "version": "0.1.0",
+  "description": "Draw any shape and watch a Fourier series of spinning circles retrace it.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/"
+  }
+}
