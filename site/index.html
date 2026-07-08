@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Epicycle — draw it, watch it spin</title>
+    <meta
+      name="description"
+      content="Draw any shape and watch a chain of spinning circles — a Fourier series — retrace it in real time."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <span class="wordmark">Epicycle</span>
+    </header>
+
+    <main class="stage">
+      <section class="canvas-panel">
+        <canvas id="epicycle-canvas" aria-label="Epicycle drawing and retrace canvas"></canvas>
+      </section>
+      <aside class="control-rail" aria-label="Controls">
+        <p class="control-rail__note">Controls coming soon — circle count, speed, and export.</p>
+      </aside>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
