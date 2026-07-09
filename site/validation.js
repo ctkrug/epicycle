@@ -8,7 +8,7 @@ export function isDrawablePath(points) {
 function countDistinctPoints(points) {
   const seen = new Set();
   for (const point of points) {
-    if (!point || typeof point.x !== 'number' || typeof point.y !== 'number') continue;
+    if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) continue;
     seen.add(`${Math.round(point.x)},${Math.round(point.y)}`);
   }
   return seen.size;
