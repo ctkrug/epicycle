@@ -24,8 +24,16 @@ function main() {
   const hint = document.getElementById('hint');
   const strokeMessage = document.getElementById('stroke-message');
 
+  // Cached in CSS pixels and only recomputed on resize — reading
+  // getBoundingClientRect() every animation frame would force a synchronous
+  // layout reflow on each of the 60 draws per second.
+  let canvasWidth = 0;
+  let canvasHeight = 0;
+
   function resize() {
     const rect = canvas.getBoundingClientRect();
+    canvasWidth = rect.width;
+    canvasHeight = rect.height;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -257,25 +265,28 @@ function main() {
     });
   });
 
+  // Every circle and radius line shares the same stroke style, so they're
+  // batched into a single path and one stroke() call rather than one
+  // beginPath()/stroke() pair per segment (up to ~120 circles a frame) —
+  // that was costing real frame time (see docs/ARCHITECTURE.md Performance).
   function drawChain(cx, cy, positions) {
     ctx.save();
     ctx.translate(cx, cy);
     ctx.strokeStyle = 'rgba(245, 236, 255, 0.25)';
     ctx.lineWidth = 1;
+    ctx.beginPath();
     for (let i = 0; i < positions.length - 1; i += 1) {
       const center = positions[i];
       const next = positions[i + 1];
       const radius = Math.hypot(next.x - center.x, next.y - center.y);
       if (radius > 0.5) {
-        ctx.beginPath();
+        ctx.moveTo(center.x + radius, center.y);
         ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
-        ctx.stroke();
       }
-      ctx.beginPath();
       ctx.moveTo(center.x, center.y);
       ctx.lineTo(next.x, next.y);
-      ctx.stroke();
     }
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -331,10 +342,9 @@ function main() {
       }
     }
 
-    const rect = canvas.getBoundingClientRect();
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    ctx.clearRect(0, 0, rect.width, rect.height);
+    const cx = canvasWidth / 2;
+    const cy = canvasHeight / 2;
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     if (activeCoefficients.length > 0) {
       const positions = chainPositions(activeCoefficients, animationState.t);
