@@ -13,6 +13,9 @@ export default [
         localStorage: 'readonly',
         AudioContext: 'readonly',
         matchMedia: 'readonly',
+        MediaRecorder: 'readonly',
+        Blob: 'readonly',
+        URL: 'readonly',
       },
     },
     rules: {

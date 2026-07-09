@@ -348,6 +348,20 @@ input[type='range']:disabled::-webkit-slider-thumb {
   background: #35204f;
 }
 
+.button--recording {
+  animation: recording-pulse 900ms ease-in-out infinite;
+}
+
+@keyframes recording-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(255, 84, 112, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 84, 112, 0.7);
+  }
+}
+
 .icon-button {
   display: inline-flex;
   align-items: center;

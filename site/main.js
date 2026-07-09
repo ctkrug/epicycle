@@ -9,6 +9,7 @@ import { saveLastShape, loadLastShape } from './shapePersistence.js';
 import { createSoundEngine } from './audio.js';
 import { presetPath } from './presets.js';
 import { eGlyphPath } from './wordmarkPath.js';
+import { VIDEO_MIME_CANDIDATES, pickSupportedMimeType, videoFilename } from './videoExport.js';
 
 const SAMPLE_POINTS = 120;
 
@@ -40,6 +41,7 @@ function main() {
   const speedInput = document.getElementById('speed');
   const speedValue = document.getElementById('speed-value');
   const exportPngButton = document.getElementById('export-png');
+  const exportVideoButton = document.getElementById('export-video');
   const muteToggle = document.getElementById('mute-toggle');
   const liveRegion = document.getElementById('live-region');
 
@@ -64,6 +66,14 @@ function main() {
   let lastFrameTime = null;
   let loopCount = 0;
   let flashUntil = 0;
+  let mediaRecorder = null;
+  let recordingLoopSeen = false;
+  let wasPlayingBeforeRecording = true;
+
+  const canRecordVideo =
+    typeof canvas.captureStream === 'function' &&
+    typeof MediaRecorder !== 'undefined' &&
+    Boolean(pickSupportedMimeType(VIDEO_MIME_CANDIDATES, (type) => MediaRecorder.isTypeSupported(type)));
 
   function announce(text) {
     liveRegion.textContent = text;
@@ -101,6 +111,7 @@ function main() {
     playPauseButton.disabled = false;
     restartButton.disabled = false;
     exportPngButton.disabled = false;
+    exportVideoButton.disabled = !canRecordVideo;
 
     applyCircleCount(fullCoefficients.length);
   }
@@ -191,6 +202,47 @@ function main() {
     sound.exportComplete();
   });
 
+  exportVideoButton.addEventListener('click', () => {
+    if (!canRecordVideo || mediaRecorder) return;
+    const mimeType = pickSupportedMimeType(VIDEO_MIME_CANDIDATES, (type) =>
+      MediaRecorder.isTypeSupported(type)
+    );
+    const stream = canvas.captureStream(60);
+    const chunks = [];
+    mediaRecorder = new MediaRecorder(stream, { mimeType });
+    mediaRecorder.addEventListener('dataavailable', (event) => {
+      if (event.data.size > 0) chunks.push(event.data);
+    });
+    mediaRecorder.addEventListener('stop', () => {
+      exportVideoButton.disabled = false;
+      exportVideoButton.textContent = 'Export video';
+      exportVideoButton.classList.remove('button--recording');
+      playPauseButton.disabled = false;
+      restartButton.disabled = false;
+      if (!wasPlayingBeforeRecording) setPlaying(false);
+      mediaRecorder = null;
+      const blob = new Blob(chunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = videoFilename(timestamp);
+      link.click();
+      URL.revokeObjectURL(url);
+      sound.exportComplete();
+    });
+
+    recordingLoopSeen = false;
+    wasPlayingBeforeRecording = animationState.playing;
+    if (!animationState.playing) setPlaying(true);
+    exportVideoButton.disabled = true;
+    exportVideoButton.textContent = 'Recording…';
+    exportVideoButton.classList.add('button--recording');
+    playPauseButton.disabled = true;
+    restartButton.disabled = true;
+    mediaRecorder.start();
+  });
+
   muteToggle.addEventListener('click', () => {
     sound.setMuted(!sound.isMuted());
     reflectMuteState();
@@ -266,6 +318,13 @@ function main() {
         loopCount += 1;
         announce(`Loop ${loopCount} complete.`);
         if (!prefersReducedMotion) flashUntil = now + 150;
+        if (mediaRecorder) {
+          if (recordingLoopSeen) {
+            mediaRecorder.stop();
+          } else {
+            recordingLoopSeen = true;
+          }
+        }
       }
     }
 
