@@ -8,8 +8,12 @@ import { advanceAnimation, DEFAULT_LOOP_SECONDS } from './animation.js';
 import { saveLastShape, loadLastShape } from './shapePersistence.js';
 import { createSoundEngine } from './audio.js';
 import { presetPath } from './presets.js';
+import { eGlyphPath } from './wordmarkPath.js';
 
 const SAMPLE_POINTS = 120;
+
+const prefersReducedMotion =
+  typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function main() {
   const canvas = document.getElementById('epicycle-canvas');
@@ -38,9 +42,6 @@ function main() {
   const exportPngButton = document.getElementById('export-png');
   const muteToggle = document.getElementById('mute-toggle');
   const liveRegion = document.getElementById('live-region');
-
-  const prefersReducedMotion =
-    typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const sound = createSoundEngine();
 
@@ -296,4 +297,79 @@ function main() {
   requestAnimationFrame(render);
 }
 
+// Signature detail (docs/DESIGN.md): the wordmark's "E" is the same
+// engine, shrunk down — a tiny epicycle chain retracing the letterform
+// on a loop, proving the point before the user has drawn anything.
+function initWordmarkGlyph() {
+  const canvas = document.getElementById('wordmark-glyph');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const size = 40;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const resampled = resamplePath(eGlyphPath(), 60);
+  const coefficients = dft(resampled).slice(0, 14);
+  const state = { t: 0, playing: !prefersReducedMotion, speed: 1, loopSeconds: 3 };
+  let trail = [];
+  let lastTime = null;
+
+  function draw(positions) {
+    ctx.clearRect(0, 0, size, size);
+    ctx.save();
+    ctx.translate(size / 2, size / 2);
+    ctx.scale(0.9, 0.9);
+
+    ctx.strokeStyle = 'rgba(245, 236, 255, 0.3)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < positions.length - 1; i += 1) {
+      const center = positions[i];
+      const next = positions[i + 1];
+      const radius = Math.hypot(next.x - center.x, next.y - center.y);
+      if (radius > 0.5) {
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    if (trail.length > 1) {
+      ctx.strokeStyle = '#38e8ff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      trail.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+      });
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  if (prefersReducedMotion) {
+    draw(chainPositions(coefficients, 0));
+    return;
+  }
+
+  function render(now) {
+    if (lastTime === null) lastTime = now;
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    const result = advanceAnimation(state, dt);
+    state.t = result.t;
+    if (result.looped) trail = [];
+
+    const positions = chainPositions(coefficients, state.t);
+    trail.push(positions[positions.length - 1]);
+    draw(positions);
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+}
+
 main();
+initWordmarkGlyph();
