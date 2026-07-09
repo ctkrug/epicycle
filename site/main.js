@@ -73,6 +73,7 @@ function main() {
   const canRecordVideo =
     typeof canvas.captureStream === 'function' &&
     typeof MediaRecorder !== 'undefined' &&
+    typeof MediaRecorder.isTypeSupported === 'function' &&
     Boolean(pickSupportedMimeType(VIDEO_MIME_CANDIDATES, (type) => MediaRecorder.isTypeSupported(type)));
 
   function announce(text) {
