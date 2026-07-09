@@ -29,6 +29,10 @@ function main() {
   const circleCountInput = document.getElementById('circle-count');
   const circleCountValue = document.getElementById('circle-count-value');
   const toggleCircles = document.getElementById('toggle-circles');
+  const playPauseButton = document.getElementById('play-pause');
+  const restartButton = document.getElementById('restart');
+  const speedInput = document.getElementById('speed');
+  const speedValue = document.getElementById('speed-value');
 
   const strokeRecorder = createStrokeRecorder();
   const animationState = { t: 0, playing: true, speed: 1, loopSeconds: DEFAULT_LOOP_SECONDS };
@@ -67,7 +71,18 @@ function main() {
     circleCountInput.value = String(fullCoefficients.length);
     circleCountInput.disabled = false;
 
+    playPauseButton.disabled = false;
+    restartButton.disabled = false;
+
     applyCircleCount(fullCoefficients.length);
+  }
+
+  function setPlaying(playing) {
+    animationState.playing = playing;
+    playPauseButton.innerHTML = playing
+      ? '<span aria-hidden="true">&#10074;&#10074;</span> Pause'
+      : '<span aria-hidden="true">&#9654;</span> Play';
+    playPauseButton.setAttribute('aria-label', playing ? 'Pause animation' : 'Play animation');
   }
 
   function handleStrokeEnd() {
@@ -114,6 +129,22 @@ function main() {
 
   toggleCircles.addEventListener('change', () => {
     showCircles = toggleCircles.checked;
+  });
+
+  playPauseButton.addEventListener('click', () => {
+    setPlaying(!animationState.playing);
+  });
+
+  restartButton.addEventListener('click', () => {
+    animationState.t = 0;
+    trail = [];
+  });
+
+  speedInput.addEventListener('input', () => {
+    const speed = Number(speedInput.value);
+    animationState.speed = speed;
+    const label = Number.isInteger(speed) ? speed.toFixed(1) : String(speed);
+    speedValue.textContent = `${label}×`;
   });
 
   function drawChain(cx, cy, positions) {
