@@ -37,3 +37,25 @@ test('ignores garbage entries but still counts the valid points among them', () 
   const points = [null, { x: 0, y: 0 }, 'garbage', { x: 5, y: 0 }, undefined, { x: 5, y: 5 }];
   assert.equal(isDrawablePath(points), true);
 });
+
+test('rejects points with non-finite coordinates', () => {
+  // typeof NaN and typeof Infinity are both 'number', so a naive typeof
+  // check lets them through; a hand-edited/corrupted localStorage entry
+  // like `1e400` parses to Infinity via JSON.parse without throwing.
+  const points = [
+    { x: Infinity, y: 0 },
+    { x: -Infinity, y: 1 },
+    { x: NaN, y: NaN },
+  ];
+  assert.equal(isDrawablePath(points), false);
+});
+
+test('counts a mix of finite and non-finite points using only the finite ones', () => {
+  const points = [
+    { x: 0, y: 0 },
+    { x: 5, y: 0 },
+    { x: Infinity, y: Infinity },
+    { x: NaN, y: NaN },
+  ];
+  assert.equal(isDrawablePath(points), false);
+});
