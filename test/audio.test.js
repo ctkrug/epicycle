@@ -27,6 +27,12 @@ test('saveMutePreference then loadMutePreference round-trips', () => {
   assert.equal(loadMutePreference(), true);
 });
 
+test('loadMutePreference and saveMutePreference are no-ops without localStorage', () => {
+  delete globalThis.localStorage;
+  assert.equal(loadMutePreference(), false);
+  assert.doesNotThrow(() => saveMutePreference(true));
+});
+
 test('sound engine methods do not throw when AudioContext is unavailable', () => {
   globalThis.localStorage = new MemoryStorage();
   assert.equal(typeof globalThis.AudioContext, 'undefined');

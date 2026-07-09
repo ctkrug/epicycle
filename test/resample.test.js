@@ -56,3 +56,16 @@ test('throws for non-array input', () => {
   assert.throws(() => resamplePath(null, 5), /at least one point/);
   assert.throws(() => resamplePath(undefined, 5), /at least one point/);
 });
+
+test('handles a leading zero-length segment from a duplicated start point', () => {
+  // The first two points coincide, so the first segment has length 0 —
+  // exercises the `segmentLengths[segmentIndex] || 1` divide-by-zero guard.
+  const points = [{ x: 2, y: 3 }, { x: 2, y: 3 }, { x: 10, y: 3 }];
+  const result = resamplePath(points, 4);
+  assert.equal(result.length, 4);
+  assert.deepEqual(result[0], { x: 2, y: 3 });
+  for (const p of result) {
+    assert.ok(Number.isFinite(p.x));
+    assert.ok(Number.isFinite(p.y));
+  }
+});
