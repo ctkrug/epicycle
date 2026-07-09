@@ -69,3 +69,22 @@ test('handles a leading zero-length segment from a duplicated start point', () =
     assert.ok(Number.isFinite(p.y));
   }
 });
+
+test('skips over a zero-length segment in the middle of the path without stalling', () => {
+  // Points 1 and 2 coincide, so the middle segment has length 0 — the
+  // segment-advance loop must step past it in the same iteration rather
+  // than getting stuck re-checking a segment it can never resolve past.
+  const points = [{ x: 0, y: 0 }, { x: 5, y: 0 }, { x: 5, y: 0 }, { x: 10, y: 0 }];
+  const result = resamplePath(points, 6);
+  assert.equal(result.length, 6);
+  for (const p of result) {
+    assert.ok(Number.isFinite(p.x));
+    assert.ok(Number.isFinite(p.y));
+  }
+  // Still monotonically traces from x=0 to x=10 despite the flat spot.
+  for (let i = 1; i < result.length; i += 1) {
+    assert.ok(result[i].x >= result[i - 1].x);
+  }
+  assert.equal(result[0].x, 0);
+  assert.ok(result[result.length - 1].x <= 10);
+});
