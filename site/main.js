@@ -20,7 +20,6 @@ function main() {
   const canvas = document.getElementById('epicycle-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
   const hint = document.getElementById('hint');
   const strokeMessage = document.getElementById('stroke-message');
 
@@ -31,6 +30,11 @@ function main() {
   let canvasHeight = 0;
 
   function resize() {
+    // Re-read devicePixelRatio on every call, not just once at startup —
+    // dragging the window to a monitor with a different pixel density
+    // fires this same resize handler, and a stale dpr would leave the
+    // canvas blurry (or needlessly oversized) until a full page reload.
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvasWidth = rect.width;
     canvasHeight = rect.height;
