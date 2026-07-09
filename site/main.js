@@ -213,37 +213,16 @@ function main() {
     sound.exportComplete();
   });
 
+  function resetRecordingUi() {
+    exportVideoButton.disabled = !canRecordVideo;
+    exportVideoButton.textContent = 'Export video';
+    exportVideoButton.classList.remove('button--recording');
+    playPauseButton.disabled = false;
+    restartButton.disabled = false;
+  }
+
   exportVideoButton.addEventListener('click', () => {
     if (!canRecordVideo || mediaRecorder) return;
-    const mimeType = pickSupportedMimeType(VIDEO_MIME_CANDIDATES, (type) =>
-      MediaRecorder.isTypeSupported(type)
-    );
-    const stream = canvas.captureStream(60);
-    const chunks = [];
-    mediaRecorder = new MediaRecorder(stream, { mimeType });
-    mediaRecorder.addEventListener('dataavailable', (event) => {
-      if (event.data.size > 0) chunks.push(event.data);
-    });
-    mediaRecorder.addEventListener('stop', () => {
-      exportVideoButton.disabled = false;
-      exportVideoButton.textContent = 'Export video';
-      exportVideoButton.classList.remove('button--recording');
-      playPauseButton.disabled = false;
-      restartButton.disabled = false;
-      if (!wasPlayingBeforeRecording) setPlaying(false);
-      mediaRecorder = null;
-      stream.getTracks().forEach((track) => track.stop());
-      const blob = new Blob(chunks, { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = videoFilename(timestamp);
-      link.click();
-      URL.revokeObjectURL(url);
-      sound.exportComplete();
-      announce('Video export complete.');
-    });
 
     recordingLoopSeen = false;
     wasPlayingBeforeRecording = animationState.playing;
@@ -254,7 +233,44 @@ function main() {
     playPauseButton.disabled = true;
     restartButton.disabled = true;
     announce('Recording video…');
-    mediaRecorder.start();
+
+    // A browser can pass the feature-detection in canRecordVideo but still
+    // throw synchronously here (e.g. an unsupported constraint combination);
+    // without this catch that would leave the UI wedged in the disabled
+    // "Recording…" state forever, since no stop event would ever fire.
+    try {
+      const mimeType = pickSupportedMimeType(VIDEO_MIME_CANDIDATES, (type) =>
+        MediaRecorder.isTypeSupported(type)
+      );
+      const stream = canvas.captureStream(60);
+      const chunks = [];
+      mediaRecorder = new MediaRecorder(stream, { mimeType });
+      mediaRecorder.addEventListener('dataavailable', (event) => {
+        if (event.data.size > 0) chunks.push(event.data);
+      });
+      mediaRecorder.addEventListener('stop', () => {
+        mediaRecorder = null;
+        resetRecordingUi();
+        if (!wasPlayingBeforeRecording) setPlaying(false);
+        stream.getTracks().forEach((track) => track.stop());
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = videoFilename(timestamp);
+        link.click();
+        URL.revokeObjectURL(url);
+        sound.exportComplete();
+        announce('Video export complete.');
+      });
+      mediaRecorder.start();
+    } catch {
+      mediaRecorder = null;
+      resetRecordingUi();
+      if (!wasPlayingBeforeRecording) setPlaying(false);
+      showMessage('Video export failed to start in this browser.');
+    }
   });
 
   muteToggle.addEventListener('click', () => {
