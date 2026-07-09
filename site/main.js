@@ -13,8 +13,16 @@ import { VIDEO_MIME_CANDIDATES, pickSupportedMimeType, videoFilename } from './v
 
 const SAMPLE_POINTS = 120;
 
-const prefersReducedMotion =
-  typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reducedMotionQuery =
+  typeof matchMedia !== 'undefined' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+
+// A `let`, not a `const` snapshot: the render loop reads this every frame,
+// so toggling the OS/browser reduced-motion setting mid-session (a standard
+// a11y test technique — no reload needed) takes effect immediately.
+let prefersReducedMotion = reducedMotionQuery?.matches ?? false;
+reducedMotionQuery?.addEventListener('change', (event) => {
+  prefersReducedMotion = event.matches;
+});
 
 function main() {
   const canvas = document.getElementById('epicycle-canvas');
