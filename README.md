@@ -18,18 +18,25 @@ hands-on: it's *your* shape, not a canned demo.
 Scribble your name. A swarm of nested spinning circles instantly springs up
 and redraws it, one stroke at a time.
 
-## Planned features
+## Features
 
-- Freehand drawing capture (mouse + touch) with instant epicycle retrace
-- A visible chain of nested, rotating circles — not just the traced dot
+- Freehand drawing capture (mouse + touch, unified via Pointer Events)
+  with instant epicycle retrace
+- A visible chain of nested, rotating circles — not just the traced dot,
+  with a toggle to show/hide it
 - A circle-count slider to trade fidelity for simplicity
 - Playback controls: play/pause, speed, loop/restart
-- Export the animation as a video file, or a PNG snapshot
-- A handful of preset shapes for people who don't want to draw
-- Synthesized sound feedback and a persisted mute toggle
+- Export a PNG snapshot of the current frame
+- Preset shapes (star, heart, infinity) for people who don't want to draw
+- Synthesized WebAudio sound feedback with a persisted mute toggle
+- The last drawn or selected shape is restored automatically on reload
 
-See [`docs/VISION.md`](docs/VISION.md) for the full design rationale and
-[`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+Not yet built: video export. See [`docs/BACKLOG.md`](docs/BACKLOG.md)
+for what's left.
+
+See [`docs/VISION.md`](docs/VISION.md) for the full design rationale,
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the modules fit
+together, and [`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
 
 ## Stack
 
