@@ -48,7 +48,7 @@ deploy the `site/` directory as-is) and it runs.
 npm install
 npm run dev            # serves site/ locally
 npm test               # runs the unit + property-based tests
-npm run test:coverage  # same, with a line/branch coverage report
+npm run test:coverage  # same, and fails below an 85% line/branch/function floor
 npm run lint           # lints the source
 ```
 
