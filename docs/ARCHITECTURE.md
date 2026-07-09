@@ -121,6 +121,16 @@ for a loop that will never arrive). The `MediaStreamTrack`s are stopped
 explicitly once the recorder stops, rather than left for GC, so the
 capture doesn't keep mirroring canvas paints after the export finishes.
 
+## Theming
+
+The design (`docs/DESIGN.md`) is dark-only by choice, so `:root` sets
+`color-scheme: dark` — without it browsers fall back to light UA chrome
+for anything they theme themselves (notably the scrollbar) wherever the
+layout scrolls, which the phone breakpoint reliably does. `index.html`
+sets a matching `theme-color` meta tag so mobile browsers paint their
+own address-bar chrome with the brand's background rather than their
+default, keeping the edge-to-edge gradient feel outside the page too.
+
 ## Persistence
 
 `localStorage` holds two independent keys: the last selected shape's
