@@ -33,6 +33,7 @@ function main() {
   const restartButton = document.getElementById('restart');
   const speedInput = document.getElementById('speed');
   const speedValue = document.getElementById('speed-value');
+  const exportPngButton = document.getElementById('export-png');
 
   const strokeRecorder = createStrokeRecorder();
   const animationState = { t: 0, playing: true, speed: 1, loopSeconds: DEFAULT_LOOP_SECONDS };
@@ -73,6 +74,7 @@ function main() {
 
     playPauseButton.disabled = false;
     restartButton.disabled = false;
+    exportPngButton.disabled = false;
 
     applyCircleCount(fullCoefficients.length);
   }
@@ -145,6 +147,14 @@ function main() {
     animationState.speed = speed;
     const label = Number.isInteger(speed) ? speed.toFixed(1) : String(speed);
     speedValue.textContent = `${label}×`;
+  });
+
+  exportPngButton.addEventListener('click', () => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `epicycle-${timestamp}.png`;
+    link.click();
   });
 
   function drawChain(cx, cy, positions) {
