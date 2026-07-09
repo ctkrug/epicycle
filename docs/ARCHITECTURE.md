@@ -145,7 +145,7 @@ restored" rather than throwing.
 npm install
 npm run dev            # serves site/ locally (npx serve)
 npm test               # node --test test/ — pure-logic modules only
-npm run test:coverage  # same, via c8, with a line/branch report
+npm run test:coverage  # same, and fails below an 85% line/branch/function floor
 npm run lint            # eslint .  
 ```
 
