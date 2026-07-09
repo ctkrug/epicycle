@@ -232,6 +232,7 @@ function main() {
       restartButton.disabled = false;
       if (!wasPlayingBeforeRecording) setPlaying(false);
       mediaRecorder = null;
+      stream.getTracks().forEach((track) => track.stop());
       const blob = new Blob(chunks, { type: mimeType });
       const url = URL.createObjectURL(blob);
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
