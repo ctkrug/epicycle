@@ -62,7 +62,10 @@ unit tested without a DOM.
   call, which only ever happens from a user gesture.
 - **wordmarkPath.js** — `eGlyphPath()`: a single-stroke "E" path fed
   through the same resample → DFT pipeline to animate the header
-  wordmark glyph.
+  wordmark glyph. The glyph canvas is `aria-hidden` (it's decorative),
+  so `index.html` carries a visually hidden `E` text node alongside it —
+  without that, the header's accessible name is "picycle", missing the
+  letter the animation stands in for.
 - **videoExport.js** — `pickSupportedMimeType`/`videoFilename`: the pure
   codec-negotiation and filename logic behind the "Export video" button,
   isolated from the `MediaRecorder`/`canvas.captureStream` DOM wiring so
