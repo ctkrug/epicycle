@@ -36,6 +36,10 @@ function main() {
   const speedValue = document.getElementById('speed-value');
   const exportPngButton = document.getElementById('export-png');
   const muteToggle = document.getElementById('mute-toggle');
+  const liveRegion = document.getElementById('live-region');
+
+  const prefersReducedMotion =
+    typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const sound = createSoundEngine();
 
@@ -56,6 +60,12 @@ function main() {
   let showCircles = toggleCircles.checked;
   let trail = [];
   let lastFrameTime = null;
+  let loopCount = 0;
+  let flashUntil = 0;
+
+  function announce(text) {
+    liveRegion.textContent = text;
+  }
 
   function showMessage(text) {
     strokeMessage.textContent = text;
@@ -202,12 +212,12 @@ function main() {
     ctx.restore();
   }
 
-  function drawTrail(cx, cy, points) {
+  function drawTrail(cx, cy, points, flashing) {
     if (points.length < 2) return;
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.strokeStyle = '#38e8ff';
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = flashing ? '#9df6ff' : '#38e8ff';
+    ctx.lineWidth = flashing ? 3.5 : 2.5;
     ctx.lineJoin = 'round';
     ctx.beginPath();
     points.forEach((point, index) => {
@@ -241,6 +251,9 @@ function main() {
       if (result.looped) {
         trail = [];
         sound.loop();
+        loopCount += 1;
+        announce(`Loop ${loopCount} complete.`);
+        if (!prefersReducedMotion) flashUntil = now + 150;
       }
     }
 
@@ -254,7 +267,7 @@ function main() {
       const tip = positions[positions.length - 1];
       trail.push(tip);
       if (showCircles) drawChain(cx, cy, positions);
-      drawTrail(cx, cy, trail);
+      drawTrail(cx, cy, trail, now < flashUntil);
       drawTip(cx, cy, tip);
     }
 
