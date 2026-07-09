@@ -310,7 +310,9 @@ input[type='range']:disabled::-webkit-slider-thumb {
 }
 
 .button:disabled {
-  opacity: 0.4;
+  opacity: 0.6;
+  background: var(--surface-2);
+  color: var(--text-muted);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -370,5 +372,12 @@ input[type='range']:disabled::-webkit-slider-thumb {
 
   .control-rail {
     flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
