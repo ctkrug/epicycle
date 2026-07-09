@@ -26,13 +26,11 @@ and redraws it, one stroke at a time.
   with a toggle to show/hide it
 - A circle-count slider to trade fidelity for simplicity
 - Playback controls: play/pause, speed, loop/restart
-- Export a PNG snapshot of the current frame
+- Export a PNG snapshot of the current frame, or a WebM video covering a
+  full retrace loop
 - Preset shapes (star, heart, infinity) for people who don't want to draw
 - Synthesized WebAudio sound feedback with a persisted mute toggle
 - The last drawn or selected shape is restored automatically on reload
-
-Not yet built: video export. See [`docs/BACKLOG.md`](docs/BACKLOG.md)
-for what's left.
 
 See [`docs/VISION.md`](docs/VISION.md) for the full design rationale,
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the modules fit
@@ -48,9 +46,10 @@ deploy the `site/` directory as-is) and it runs.
 
 ```sh
 npm install
-npm run dev    # serves site/ locally
-npm test       # runs the unit tests for the Fourier math
-npm run lint   # lints the source
+npm run dev            # serves site/ locally
+npm test               # runs the unit + property-based tests
+npm run test:coverage  # same, with a line/branch coverage report
+npm run lint           # lints the source
 ```
 
 ## License
