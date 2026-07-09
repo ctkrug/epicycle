@@ -28,6 +28,12 @@ test('wraps correctly even when dt skips multiple full loops', () => {
   assert.equal(result.looped, true);
 });
 
+test('reports looped when t lands exactly on the 1.0 boundary', () => {
+  const result = advanceAnimation({ ...baseState, t: 0.4, loopSeconds: 1 }, 0.6);
+  assert.equal(result.looped, true);
+  assert.equal(result.t, 0);
+});
+
 test('higher speed advances t faster for the same dt', () => {
   const slow = advanceAnimation({ ...baseState, speed: 1 }, 1);
   const fast = advanceAnimation({ ...baseState, speed: 2 }, 1);

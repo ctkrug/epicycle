@@ -32,3 +32,15 @@ test('a pure unit circle collapses onto a single frequency-1 coefficient', () =>
   const restEnergy = coefficients.slice(1).reduce((sum, c) => sum + c.amp, 0);
   assert.ok(restEnergy < 1e-9);
 });
+
+test('assigns the Nyquist bin (k === n/2) to a positive frequency, not negative', () => {
+  const n = 8;
+  const points = Array.from({ length: n }, (_, i) => ({
+    x: Math.cos((2 * Math.PI * i) / n),
+    y: Math.sin((3 * 2 * Math.PI * i) / n),
+  }));
+  const coefficients = dft(points);
+  const freqs = coefficients.map((c) => c.freq).sort((a, b) => a - b);
+  const expected = Array.from({ length: n }, (_, k) => (k > n / 2 ? k - n : k)).sort((a, b) => a - b);
+  assert.deepEqual(freqs, expected);
+});
