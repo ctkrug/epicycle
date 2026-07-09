@@ -26,9 +26,15 @@ function main() {
   window.addEventListener('resize', resize);
   resize();
 
+  const circleCountInput = document.getElementById('circle-count');
+  const circleCountValue = document.getElementById('circle-count-value');
+  const toggleCircles = document.getElementById('toggle-circles');
+
   const strokeRecorder = createStrokeRecorder();
   const animationState = { t: 0, playing: true, speed: 1, loopSeconds: DEFAULT_LOOP_SECONDS };
-  let coefficients = [];
+  let fullCoefficients = [];
+  let activeCoefficients = [];
+  let showCircles = toggleCircles.checked;
   let trail = [];
   let lastFrameTime = null;
 
@@ -45,11 +51,23 @@ function main() {
     hint.hidden = true;
   }
 
+  function applyCircleCount(count) {
+    activeCoefficients = fullCoefficients.slice(0, count);
+    circleCountValue.textContent = String(count);
+    trail = [];
+  }
+
   function loadShape(points) {
     const resampled = resamplePath(points, SAMPLE_POINTS);
-    coefficients = dft(resampled);
+    fullCoefficients = dft(resampled);
     animationState.t = 0;
-    trail = [];
+
+    circleCountInput.min = '1';
+    circleCountInput.max = String(fullCoefficients.length);
+    circleCountInput.value = String(fullCoefficients.length);
+    circleCountInput.disabled = false;
+
+    applyCircleCount(fullCoefficients.length);
   }
 
   function handleStrokeEnd() {
@@ -88,6 +106,14 @@ function main() {
   canvas.addEventListener('pointercancel', () => {
     if (!strokeRecorder.isActive) return;
     handleStrokeEnd();
+  });
+
+  circleCountInput.addEventListener('input', () => {
+    applyCircleCount(Number(circleCountInput.value));
+  });
+
+  toggleCircles.addEventListener('change', () => {
+    showCircles = toggleCircles.checked;
   });
 
   function drawChain(cx, cy, positions) {
@@ -145,7 +171,7 @@ function main() {
     const dt = (now - lastFrameTime) / 1000;
     lastFrameTime = now;
 
-    if (coefficients.length > 0) {
+    if (activeCoefficients.length > 0) {
       const result = advanceAnimation(animationState, dt);
       animationState.t = result.t;
       if (result.looped) trail = [];
@@ -156,11 +182,11 @@ function main() {
     const cy = rect.height / 2;
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    if (coefficients.length > 0) {
-      const positions = chainPositions(coefficients, animationState.t);
+    if (activeCoefficients.length > 0) {
+      const positions = chainPositions(activeCoefficients, animationState.t);
       const tip = positions[positions.length - 1];
       trail.push(tip);
-      drawChain(cx, cy, positions);
+      if (showCircles) drawChain(cx, cy, positions);
       drawTrail(cx, cy, trail);
       drawTip(cx, cy, tip);
     }
