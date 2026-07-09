@@ -1,4 +1,10 @@
 :root {
+  /* This is a dark-only design (see docs/DESIGN.md); without this the
+     browser falls back to light UA chrome — a bright native scrollbar
+     cutting through the dusk-to-night gradient on any page tall enough
+     to scroll (e.g. the phone layout). */
+  color-scheme: dark;
+
   --bg-top: #2d1b4e;
   --bg-bottom: #0a0518;
   --surface-1: #1c1030;
