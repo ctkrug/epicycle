@@ -26,3 +26,14 @@ test('non-array input is not drawable', () => {
   assert.equal(isDrawablePath(undefined), false);
   assert.equal(isDrawablePath('not a path'), false);
 });
+
+test('an array containing null/non-point entries does not throw and is not drawable', () => {
+  assert.doesNotThrow(() => isDrawablePath([1, 2, 3, 'x', null]));
+  assert.equal(isDrawablePath([1, 2, 3, 'x', null]), false);
+  assert.doesNotThrow(() => isDrawablePath([null, undefined, {}]));
+});
+
+test('ignores garbage entries but still counts the valid points among them', () => {
+  const points = [null, { x: 0, y: 0 }, 'garbage', { x: 5, y: 0 }, undefined, { x: 5, y: 5 }];
+  assert.equal(isDrawablePath(points), true);
+});
