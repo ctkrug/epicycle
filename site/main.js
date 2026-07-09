@@ -399,11 +399,16 @@ function initWordmarkGlyph() {
   const canvas = document.getElementById('wordmark-glyph');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
   const size = 40;
-  canvas.width = size * dpr;
-  canvas.height = size * dpr;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
 
   const resampled = resamplePath(eGlyphPath(), 60);
   const coefficients = dft(resampled).slice(0, 14);
