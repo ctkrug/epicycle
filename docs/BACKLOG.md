@@ -47,8 +47,8 @@ criteria. Story 1.1 is the wow moment and must land before anything else.
   - [x] A restart control resets the animation to frame 0 and clears any
         accumulated trail before redrawing.
 
-- [ ] **2.3 Export the animation and a still snapshot.**
-  - [ ] An "Export video" action produces a downloadable video file (e.g.
+- [x] **2.3 Export the animation and a still snapshot.**
+  - [x] An "Export video" action produces a downloadable video file (e.g.
         WebM) covering at least one full retrace loop, with the button
         showing a progress state while encoding.
   - [x] A "Save PNG" action downloads a snapshot of the current canvas
