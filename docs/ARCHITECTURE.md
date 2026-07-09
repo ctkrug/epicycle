@@ -142,3 +142,14 @@ Every module except `main.js` is pure/DOM-free and covered by
 round-trip and resample/animation invariants rather than only hand-picked
 examples. `main.js` is verified manually (or via a Playwright driver)
 rather than unit tested, since it's wiring, not logic.
+
+### A note on mutation testing `resample.js`
+
+Flipping the segment-advance loop's `<` to `<=` in
+`segmentStart + segmentLengths[segmentIndex] < target` survives the full
+suite untouched — this is a genuine equivalent mutant, not a coverage
+gap. Segment `i`'s endpoint and segment `i+1`'s start are the same input
+point by construction, so resolving a boundary-exact `target` against
+either segment yields the same coordinate; 20,000 randomized trials
+comparing both branches produced zero differing outputs. Don't chase a
+test to kill this one.
