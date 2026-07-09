@@ -31,6 +31,15 @@ test('resolution parameter controls point count for parametric presets', () => {
   assert.equal(presetPath('infinity', 50).length, 51);
 });
 
+test('the default resolution (no argument) is smooth enough for a curved preset', () => {
+  // main.js always calls presetPath(name) with no resolution — this is the
+  // density every user actually sees. Nothing else pins the private
+  // DEFAULT_RESOLUTION, so it could regress to something visibly blocky
+  // (e.g. 5) while still passing the "drawable and centered" checks above.
+  assert.ok(presetPath('heart').length >= 100, `heart had only ${presetPath('heart').length} points`);
+  assert.ok(presetPath('infinity').length >= 100, `infinity had only ${presetPath('infinity').length} points`);
+});
+
 test('star ignores the resolution parameter (fixed vertex count)', () => {
   assert.equal(presetPath('star', 10).length, presetPath('star', 500).length);
 });
