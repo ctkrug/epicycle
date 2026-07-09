@@ -21,6 +21,16 @@ test('loadLastShape returns null when nothing has been saved', () => {
   assert.equal(loadLastShape(), null);
 });
 
+test('saveLastShape writes under the stable "epicycle:last-shape" key', () => {
+  // A same-module round-trip test can't catch a renamed storage key —
+  // both sides change together and the test still passes. Pinning the
+  // literal key guards against silently orphaning shapes already-deployed
+  // users have saved under the current name.
+  globalThis.localStorage = new MemoryStorage();
+  saveLastShape([{ x: 1, y: 1 }]);
+  assert.ok(globalThis.localStorage.getItem('epicycle:last-shape'));
+});
+
 test('saveLastShape then loadLastShape round-trips the points', () => {
   globalThis.localStorage = new MemoryStorage();
   const points = [{ x: 1, y: 2 }, { x: 3, y: 4 }];

@@ -21,6 +21,14 @@ test('loadMutePreference defaults to false when nothing is stored', () => {
   assert.equal(loadMutePreference(), false);
 });
 
+test('saveMutePreference writes under the stable "epicycle:muted" key', () => {
+  // Same rationale as shapePersistence's key-pinning test: a same-module
+  // round-trip can't catch a renamed key, since both sides move together.
+  globalThis.localStorage = new MemoryStorage();
+  saveMutePreference(true);
+  assert.equal(globalThis.localStorage.getItem('epicycle:muted'), 'true');
+});
+
 test('saveMutePreference then loadMutePreference round-trips', () => {
   globalThis.localStorage = new MemoryStorage();
   saveMutePreference(true);
