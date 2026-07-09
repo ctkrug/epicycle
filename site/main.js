@@ -7,6 +7,7 @@ import { centeredCanvasPoint } from './coordinates.js';
 import { advanceAnimation, DEFAULT_LOOP_SECONDS } from './animation.js';
 import { saveLastShape, loadLastShape } from './shapePersistence.js';
 import { createSoundEngine } from './audio.js';
+import { presetPath } from './presets.js';
 
 const SAMPLE_POINTS = 120;
 
@@ -111,18 +112,22 @@ function main() {
     playPauseButton.setAttribute('aria-label', playing ? 'Pause animation' : 'Play animation');
   }
 
-  function handleStrokeEnd() {
-    const points = strokeRecorder.end();
-    if (!isDrawablePath(points)) {
-      showMessage('Draw a bit more — that stroke was too short to trace.');
-      return;
-    }
+  function selectShape(points) {
     clearMessage();
     hideHint();
     loadShape(points);
     saveLastShape(points);
     sound.drawEnd();
     sound.compute();
+  }
+
+  function handleStrokeEnd() {
+    const points = strokeRecorder.end();
+    if (!isDrawablePath(points)) {
+      showMessage('Draw a bit more — that stroke was too short to trace.');
+      return;
+    }
+    selectShape(points);
   }
 
   function pointFromEvent(event) {
@@ -188,6 +193,12 @@ function main() {
   muteToggle.addEventListener('click', () => {
     sound.setMuted(!sound.isMuted());
     reflectMuteState();
+  });
+
+  document.querySelectorAll('[data-preset]').forEach((button) => {
+    button.addEventListener('click', () => {
+      selectShape(presetPath(button.dataset.preset));
+    });
   });
 
   function drawChain(cx, cy, positions) {
