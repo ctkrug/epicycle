@@ -47,3 +47,21 @@ test('saveLastShape and loadLastShape are no-ops without localStorage', () => {
   assert.doesNotThrow(() => saveLastShape([{ x: 1, y: 1 }]));
   assert.equal(loadLastShape(), null);
 });
+
+test('saveLastShape swallows a quota-exceeded setItem failure', () => {
+  const storage = new MemoryStorage();
+  storage.setItem = () => {
+    throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+  };
+  globalThis.localStorage = storage;
+  assert.doesNotThrow(() => saveLastShape([{ x: 1, y: 1 }]));
+});
+
+test('loadLastShape returns null when getItem itself throws', () => {
+  const storage = new MemoryStorage();
+  storage.getItem = () => {
+    throw new Error('storage disabled in private browsing');
+  };
+  globalThis.localStorage = storage;
+  assert.equal(loadLastShape(), null);
+});

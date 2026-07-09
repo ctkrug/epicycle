@@ -55,3 +55,21 @@ test('a fresh sound engine picks up a previously persisted mute preference', () 
   const engine = createSoundEngine();
   assert.equal(engine.isMuted(), true);
 });
+
+test('saveMutePreference swallows a quota-exceeded setItem failure', () => {
+  const storage = new MemoryStorage();
+  storage.setItem = () => {
+    throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+  };
+  globalThis.localStorage = storage;
+  assert.doesNotThrow(() => saveMutePreference(true));
+});
+
+test('loadMutePreference returns false when getItem itself throws', () => {
+  const storage = new MemoryStorage();
+  storage.getItem = () => {
+    throw new Error('storage disabled in private browsing');
+  };
+  globalThis.localStorage = storage;
+  assert.equal(loadMutePreference(), false);
+});

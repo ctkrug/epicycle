@@ -16,6 +16,7 @@ export default [
         MediaRecorder: 'readonly',
         Blob: 'readonly',
         URL: 'readonly',
+        DOMException: 'readonly',
       },
     },
     rules: {
