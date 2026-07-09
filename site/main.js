@@ -6,6 +6,7 @@ import { isDrawablePath } from './validation.js';
 import { centeredCanvasPoint } from './coordinates.js';
 import { advanceAnimation, DEFAULT_LOOP_SECONDS } from './animation.js';
 import { saveLastShape, loadLastShape } from './shapePersistence.js';
+import { createSoundEngine } from './audio.js';
 
 const SAMPLE_POINTS = 120;
 
@@ -34,6 +35,19 @@ function main() {
   const speedInput = document.getElementById('speed');
   const speedValue = document.getElementById('speed-value');
   const exportPngButton = document.getElementById('export-png');
+  const muteToggle = document.getElementById('mute-toggle');
+
+  const sound = createSoundEngine();
+
+  function reflectMuteState() {
+    const muted = sound.isMuted();
+    muteToggle.setAttribute('aria-pressed', String(muted));
+    muteToggle.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
+    muteToggle.innerHTML = muted
+      ? '<span aria-hidden="true">&#128263;</span>'
+      : '<span aria-hidden="true">&#128266;</span>';
+  }
+  reflectMuteState();
 
   const strokeRecorder = createStrokeRecorder();
   const animationState = { t: 0, playing: true, speed: 1, loopSeconds: DEFAULT_LOOP_SECONDS };
@@ -97,6 +111,8 @@ function main() {
     hideHint();
     loadShape(points);
     saveLastShape(points);
+    sound.drawEnd();
+    sound.compute();
   }
 
   function pointFromEvent(event) {
@@ -108,6 +124,7 @@ function main() {
     canvas.setPointerCapture(event.pointerId);
     clearMessage();
     strokeRecorder.begin(pointFromEvent(event));
+    sound.drawStart();
   });
 
   canvas.addEventListener('pointermove', (event) => {
@@ -155,6 +172,12 @@ function main() {
     link.href = canvas.toDataURL('image/png');
     link.download = `epicycle-${timestamp}.png`;
     link.click();
+    sound.exportComplete();
+  });
+
+  muteToggle.addEventListener('click', () => {
+    sound.setMuted(!sound.isMuted());
+    reflectMuteState();
   });
 
   function drawChain(cx, cy, positions) {
@@ -215,7 +238,10 @@ function main() {
     if (activeCoefficients.length > 0) {
       const result = advanceAnimation(animationState, dt);
       animationState.t = result.t;
-      if (result.looped) trail = [];
+      if (result.looped) {
+        trail = [];
+        sound.loop();
+      }
     }
 
     const rect = canvas.getBoundingClientRect();
