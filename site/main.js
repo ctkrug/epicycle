@@ -125,6 +125,7 @@ function main() {
   }
 
   function selectShape(points) {
+    if (mediaRecorder) return;
     clearMessage();
     hideHint();
     loadShape(points);
@@ -148,6 +149,7 @@ function main() {
   }
 
   canvas.addEventListener('pointerdown', (event) => {
+    if (mediaRecorder) return;
     canvas.setPointerCapture(event.pointerId);
     clearMessage();
     strokeRecorder.begin(pointFromEvent(event));
