@@ -242,6 +242,7 @@ function main() {
       link.click();
       URL.revokeObjectURL(url);
       sound.exportComplete();
+      announce('Video export complete.');
     });
 
     recordingLoopSeen = false;
@@ -252,6 +253,7 @@ function main() {
     exportVideoButton.classList.add('button--recording');
     playPauseButton.disabled = true;
     restartButton.disabled = true;
+    announce('Recording video…');
     mediaRecorder.start();
   });
 
