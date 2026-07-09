@@ -37,7 +37,10 @@ export function resamplePath(points, count) {
     const segmentLength = segmentLengths[segmentIndex] || 1;
     const t = Math.min(1, Math.max(0, (target - segmentStart) / segmentLength));
     const a = points[segmentIndex];
-    const b = points[segmentIndex + 1] || a;
+    // The while loop above never advances segmentIndex past
+    // segmentLengths.length - 1, so segmentIndex + 1 always indexes a real
+    // point — no fallback needed here.
+    const b = points[segmentIndex + 1];
     result.push({
       x: a.x + (b.x - a.x) * t,
       y: a.y + (b.y - a.y) * t,
