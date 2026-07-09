@@ -60,10 +60,14 @@ Nothing sits unused — the sky gradient extends edge-to-edge behind both.
 
 ## 4. Signature detail
 
-The wordmark's "E" is a live miniature epicycle chain: a tiny two-circle
-system continuously retraces the letterform in the header, looping every few
-seconds. It's the same engine that powers the whole app, shrunk down to
-prove the point before you've drawn anything.
+A live miniature epicycle chain animates continuously beside the wordmark —
+a small nested-circle system retracing a stylized "E" pen-stroke on a loop.
+At 40px and with only a double-digit handful of harmonics, it reads as an
+abstract animated mark rather than a crisp letterform (sharp right-angle
+corners need far more harmonics than a header icon can afford to render
+cleanly) — that trade-off is fine, since the point is "the same engine,
+shrunk down and always spinning," not OCR-legibility. It's the same
+`chainPositions`/DFT pipeline that powers the whole app, at a smaller scale.
 
 ## 5. Juice plan (toy feedback)
 
@@ -75,9 +79,10 @@ prove the point before you've drawn anything.
   popping in instantly.
 - **Goal/success feedback:** each time the retrace completes one full loop,
   the traced line flashes a brief brighter pulse of `--accent-support`.
-- **Win celebration:** exporting an animation shows a completion overlay —
-  file size, loop count, a "Save another" CTA — with a short particle burst
-  in `--accent`/`--accent-support`, suppressed under `prefers-reduced-motion`.
+- **Win celebration:** PNG export fires the `export` cue immediately (it's a
+  synchronous snapshot, nothing to wait on). A fuller completion overlay —
+  file size, loop count, a "Save another" CTA, particle burst — is reserved
+  for video export (`docs/BACKLOG.md` 2.3), which isn't built yet.
 - **Synth SFX (WebAudio, generated in code, no audio files):**
   - `draw-start` / `draw-end` — a soft short blip (sine, ~880Hz, 40ms) when
     a stroke begins and ends.
