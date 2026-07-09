@@ -37,3 +37,22 @@ test('handles a single-point path without dividing by zero', () => {
   const result = resamplePath([{ x: 5, y: 5 }], 3);
   assert.deepEqual(result, [{ x: 5, y: 5 }, { x: 5, y: 5 }, { x: 5, y: 5 }]);
 });
+
+test('handles a path where every point coincides (zero total length)', () => {
+  const result = resamplePath([{ x: 2, y: 3 }, { x: 2, y: 3 }, { x: 2, y: 3 }], 4);
+  assert.deepEqual(result, [
+    { x: 2, y: 3 },
+    { x: 2, y: 3 },
+    { x: 2, y: 3 },
+    { x: 2, y: 3 },
+  ]);
+});
+
+test('throws for an empty points array', () => {
+  assert.throws(() => resamplePath([], 5), /at least one point/);
+});
+
+test('throws for non-array input', () => {
+  assert.throws(() => resamplePath(null, 5), /at least one point/);
+  assert.throws(() => resamplePath(undefined, 5), /at least one point/);
+});

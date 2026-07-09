@@ -73,3 +73,79 @@ test('loadMutePreference returns false when getItem itself throws', () => {
   globalThis.localStorage = storage;
   assert.equal(loadMutePreference(), false);
 });
+
+class FakeGainParam {
+  constructor() {
+    this.value = 0;
+  }
+
+  exponentialRampToValueAtTime() {}
+}
+
+class FakeOscillator {
+  constructor() {
+    this.frequency = { value: 0 };
+    this.type = 'sine';
+  }
+
+  connect(node) {
+    return node;
+  }
+
+  start() {}
+
+  stop() {}
+}
+
+class FakeAudioContext {
+  constructor() {
+    this.currentTime = 0;
+    this.destination = {};
+  }
+
+  createOscillator() {
+    return new FakeOscillator();
+  }
+
+  createGain() {
+    return { gain: new FakeGainParam(), connect: (node) => node };
+  }
+}
+
+test('an unmuted engine drives a fake AudioContext through a full blip', () => {
+  globalThis.localStorage = new MemoryStorage();
+  globalThis.AudioContext = FakeAudioContext;
+  try {
+    const engine = createSoundEngine();
+    assert.doesNotThrow(() => {
+      engine.drawStart();
+      engine.drawEnd();
+      engine.compute();
+      engine.loop();
+      engine.exportComplete();
+    });
+  } finally {
+    delete globalThis.AudioContext;
+  }
+});
+
+test('a muted engine never constructs an AudioContext', () => {
+  globalThis.localStorage = new MemoryStorage();
+  let constructedCount = 0;
+  class CountingAudioContext extends FakeAudioContext {
+    constructor() {
+      super();
+      constructedCount += 1;
+    }
+  }
+  globalThis.AudioContext = CountingAudioContext;
+  try {
+    const engine = createSoundEngine();
+    engine.setMuted(true);
+    engine.drawStart();
+    engine.loop();
+    assert.equal(constructedCount, 0);
+  } finally {
+    delete globalThis.AudioContext;
+  }
+});
