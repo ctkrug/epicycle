@@ -3,10 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Epicycle — draw it, watch it spin</title>
+    <title>Epicycle — Draw anything, watch spinning circles retrace it</title>
     <meta
       name="description"
-      content="Draw any shape and watch a chain of spinning circles — a Fourier series — retrace it in real time."
+      content="Draw any shape and watch a chain of spinning circles, a live Fourier series, retrace it in real time. Your drawing, in the browser, no login."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Epicycle — Draw anything, watch spinning circles retrace it" />
+    <meta
+      property="og:description"
+      content="Draw a shape and a chain of nested spinning circles rebuilds it live, the Fourier idea from 3Blue1Brown made hands-on with your own drawing."
     />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="theme-color" content="#0a0518" />
@@ -24,15 +30,25 @@
         <canvas id="wordmark-glyph" width="40" height="40" aria-hidden="true"></canvas>
         <span class="sr-only">E</span>picycle
       </span>
-      <button
-        id="mute-toggle"
-        class="icon-button"
-        type="button"
-        aria-label="Mute sound"
-        aria-pressed="false"
-      >
-        <span aria-hidden="true">&#128266;</span>
-      </button>
+      <div class="header-actions">
+        <a
+          class="text-link"
+          href="https://github.com/ctkrug/epicycle"
+          target="_blank"
+          rel="noopener"
+        >
+          View on GitHub
+        </a>
+        <button
+          id="mute-toggle"
+          class="icon-button"
+          type="button"
+          aria-label="Mute sound"
+          aria-pressed="false"
+        >
+          <span aria-hidden="true">&#128266;</span>
+        </button>
+      </div>
     </header>
 
     <main class="stage">
@@ -92,6 +108,89 @@
         </div>
       </aside>
     </main>
+
+    <section class="about" aria-label="About Epicycle">
+      <div class="about__inner">
+        <h2>What Epicycle does</h2>
+        <p>
+          Epicycle turns a shape you draw into a Fourier series and animates it
+          as a chain of nested spinning circles. Draw a stroke with your mouse
+          or finger and the app samples it into evenly spaced points, runs a
+          discrete Fourier transform, and rebuilds the path as rotating vectors.
+          The tip of the last circle traces your original drawing, one loop at a
+          time. It is the &ldquo;spinning circles draw a picture&rdquo; idea from
+          3Blue1Brown&rsquo;s Fourier video, except the picture is yours and it
+          is computed live in your browser.
+        </p>
+
+        <h2>How to use it</h2>
+        <ol>
+          <li>Draw any shape on the canvas, or pick a star, heart, or infinity preset.</li>
+          <li>Watch the circle chain spring up and retrace your stroke.</li>
+          <li>
+            Drag the Circles slider: fewer harmonics give a looser, wobblier
+            trace, more give a crisp one.
+          </li>
+          <li>Adjust the speed, pause, or restart the loop.</li>
+          <li>Save a PNG of the current frame, or export a WebM of one full loop.</li>
+        </ol>
+        <p>
+          Everything runs in the browser. There is no login, no upload, and your
+          drawing never leaves the page. The last shape you drew is saved locally
+          so it is waiting when you come back.
+        </p>
+
+        <h2>Why circles can draw any shape</h2>
+        <p>
+          Any closed 2D path can be read as a complex signal over time. Its
+          discrete Fourier transform breaks that signal into rotating vectors of
+          different frequency, amplitude, and phase. Stack the vectors tip to
+          tail, spin each at its own rate, and their combined endpoint retraces
+          the original path. More circles means a closer match to sharp corners;
+          a handful gives you the smooth, ghostly approximation.
+        </p>
+
+        <h2>FAQ</h2>
+        <dl class="faq">
+          <dt>Does it work on a phone?</dt>
+          <dd>
+            Yes. The canvas takes touch input, so you can draw with a finger, and
+            the layout stacks the canvas above the controls at phone width.
+          </dd>
+          <dt>Do I need to install anything?</dt>
+          <dd>
+            No. Epicycle is a static page: open it and draw. To run it locally,
+            clone the repo and serve the <code>site/</code> folder.
+          </dd>
+          <dt>Can I save the animation?</dt>
+          <dd>
+            Yes. &ldquo;Save PNG&rdquo; grabs the current frame. &ldquo;Export
+            video&rdquo; records a WebM covering one complete retrace loop, where
+            your browser supports canvas recording.
+          </dd>
+          <dt>What are the spinning circles actually doing?</dt>
+          <dd>
+            Each circle is one term of the Fourier series: a vector rotating at a
+            fixed frequency. Summed together, their tip follows your drawing. The
+            Circles slider controls how many terms are used.
+          </dd>
+          <dt>Is my drawing sent anywhere?</dt>
+          <dd>
+            No. The drawing, the transform, and the export all happen in your
+            browser. Nothing is uploaded.
+          </dd>
+        </dl>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <a href="https://github.com/ctkrug/epicycle" target="_blank" rel="noopener">
+        Epicycle on GitHub
+      </a>
+      <a href="https://apps.charliekrug.com" target="_blank" rel="noopener">
+        More by Charlie Krug &rarr; apps.charliekrug.com
+      </a>
+    </footer>
 
     <div id="live-region" class="sr-only" role="status" aria-live="polite"></div>
 

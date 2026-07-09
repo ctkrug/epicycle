@@ -73,6 +73,30 @@ body {
   margin-right: 2px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.text-link {
+  color: var(--accent-support);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 160ms ease-out;
+}
+
+.text-link:hover {
+  border-bottom-color: var(--accent-support);
+}
+
+.text-link:focus-visible {
+  outline: 2px solid var(--accent-support);
+  outline-offset: 2px;
+}
+
 .stage {
   flex: 1;
   display: flex;
@@ -390,6 +414,90 @@ input[type='range']:disabled::-webkit-slider-thumb {
 
 .icon-button[aria-pressed='true'] {
   color: var(--accent-support);
+}
+
+/* Below-the-fold about / FAQ */
+.about {
+  padding: var(--space-8) var(--space-4);
+  border-top: 1px solid rgba(169, 150, 201, 0.15);
+}
+
+.about__inner {
+  max-width: 68ch;
+  margin: 0 auto;
+}
+
+.about h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  margin: var(--space-6) 0 var(--space-2);
+}
+
+.about h2:first-child {
+  margin-top: 0;
+}
+
+.about p,
+.about li,
+.about dd {
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.about ol {
+  padding-left: var(--space-3);
+}
+
+.about li {
+  margin-bottom: var(--space-1);
+}
+
+.about code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 0.9em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--accent-support);
+}
+
+.faq dt {
+  color: var(--text);
+  font-weight: 600;
+  margin-top: var(--space-3);
+}
+
+.faq dd {
+  margin: var(--space-1) 0 0;
+}
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid rgba(169, 150, 201, 0.15);
+}
+
+.site-footer a {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 160ms ease-out;
+}
+
+.site-footer a:hover {
+  color: var(--accent-support);
+}
+
+.site-footer a:focus-visible {
+  outline: 2px solid var(--accent-support);
+  outline-offset: 2px;
 }
 
 @media (max-width: 768px) {
