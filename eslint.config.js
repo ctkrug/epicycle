@@ -12,6 +12,7 @@ export default [
         requestAnimationFrame: 'readonly',
         localStorage: 'readonly',
         AudioContext: 'readonly',
+        matchMedia: 'readonly',
       },
     },
     rules: {
