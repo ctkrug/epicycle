@@ -82,6 +82,15 @@ trail array (drawn as a polyline, cleared when a loop completes), and
 the tip itself is drawn as a glowing dot. Circle-count slider changes
 re-slice the same `fullCoefficients` array — no recomputation needed.
 
+`devicePixelRatio` is re-read inside the `resize()` handler on every
+call (both the main canvas and the wordmark glyph canvas), not cached
+once at startup — dragging the window to a monitor with a different
+pixel density fires the same `resize` event, and a stale dpr would
+leave the canvas at the wrong backing-store scale until a full reload.
+`prefersReducedMotion` is similarly a live `let` updated via the media
+query's `change` event rather than a load-time snapshot, so toggling
+the OS/browser setting mid-session takes effect on the next frame.
+
 ### Performance
 
 The canvas's CSS-pixel size is cached on resize rather than read via
