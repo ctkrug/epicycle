@@ -16,6 +16,17 @@ test('add is a no-op before begin', () => {
   assert.deepEqual(recorder.points, []);
 });
 
+test('the default minDistance throttles a 1px move but accepts a 3px move', () => {
+  // Brackets the module's private DEFAULT_MIN_DISTANCE (2px) without
+  // exporting it — nothing else exercises createStrokeRecorder() with no
+  // args closely enough to catch that constant drifting to, say, 20px
+  // (visibly chunky strokes) or 0.02px (throttling effectively disabled).
+  const recorder = createStrokeRecorder();
+  recorder.begin({ x: 0, y: 0 });
+  assert.equal(recorder.add({ x: 1, y: 0 }), false);
+  assert.equal(recorder.add({ x: 3, y: 0 }), true);
+});
+
 test('add throttles points closer than minDistance', () => {
   const recorder = createStrokeRecorder(10);
   recorder.begin({ x: 0, y: 0 });
