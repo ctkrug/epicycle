@@ -25,3 +25,12 @@ for (const name of Object.keys(PRESETS)) {
 test('presetPath throws for an unknown preset name', () => {
   assert.throws(() => presetPath('not-a-real-preset'));
 });
+
+test('resolution parameter controls point count for parametric presets', () => {
+  assert.equal(presetPath('heart', 50).length, 51);
+  assert.equal(presetPath('infinity', 50).length, 51);
+});
+
+test('star ignores the resolution parameter (fixed vertex count)', () => {
+  assert.equal(presetPath('star', 10).length, presetPath('star', 500).length);
+});
